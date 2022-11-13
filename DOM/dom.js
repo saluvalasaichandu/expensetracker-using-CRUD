@@ -1,7 +1,7 @@
 //console.dir(document);
 console.log(document.URL);
 console.log(document.title);
-document.title="welcome to dom";
+document.title="welcome to dom...";
 console.log(document.title);
 console.log(document.doctype);
 console.log(document.head);
