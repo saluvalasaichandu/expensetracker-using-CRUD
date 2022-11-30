@@ -1,0 +1,116 @@
+<html>
+    <body>
+        <form  onsubmit="saveToLocalStorage(event)">
+
+            <label> Choose expense amount</label>
+            <input id='expenseAmount' type="number" name="expenseAmount"  required/>
+            <label> Choose description</label>
+            <input id='description' type="text" name="descriptionId"  required/>
+
+            <label for="category"  id="category">Choose a categeory:</label>
+
+            <select name="category" id="category">
+                <option value="fuel">Fuel</option>
+                <option value="food">Food</option>
+                <option value="electricity">Electricity</option>
+                <option value="movie">Movie</option>
+            </select>
+            <button> Submit </button>
+        </form>
+        <ul id='listOfUsers'></ul>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.1.3/axios.min.js"></script>
+        <script>
+            function saveToLocalStorage(event) {
+                event.preventDefault();
+                const expense = event.target.expenseAmount.value;
+                const description = event.target.descriptionId.value;
+                const category = event.target.category.value;
+                
+                const obj = {
+                    expense,
+                    description,
+                    category
+                }
+
+                axios.post("https://crudcrud.com/api/5755080eef5d439bb300b2640f920050/expense",obj)
+                .then((response)=>{
+                    showNewUserOnScreen(response.data)
+                    console.log(response)
+                })
+                .catch((err)=>{
+                    console.log(err)
+                })
+              
+            }
+
+            window.addEventListener("DOMContentLoaded", () => {
+
+                axios.get("https://crudcrud.com/api/5755080eef5d439bb300b2640f920050/expense")
+                .then((response)=>{
+                    console.log(response)
+                    for(let i=0;i<response.data.length;i++){
+                        showNewUserOnScreen(response.data[i])
+                    }
+
+                })
+                .catch((err)=>{
+                    console.log(err)
+                })
+                
+            })
+
+            function showNewUserOnScreen(user){
+                document.getElementById('description').value = '';
+                document.getElementById('expenseAmount').value = '';
+                document.getElementById('category').value ='';
+                if(localStorage.getItem(user.description) !== null){
+                    removeUserFromScreen(user.description)
+                }
+
+                const parentNode = document.getElementById('listOfUsers');
+                const childHTML = `<li id=${user._id}> ${user.expense} - ${user.description}
+                                        <button onclick=deleteUser('${user._id}')> Delete Expense </button>
+                                        <button onclick=editUserDetails('${user.description}','${user.expense}','${user.category}','${user._id}')>Edit Expense </button>
+                                     </li>`
+
+                parentNode.innerHTML = parentNode.innerHTML + childHTML;
+            }
+
+            //Edit User
+
+            function editUserDetails(descriptionId, expenseAmount, category, userId){
+
+                document.getElementById('description').value = descriptionId;
+                document.getElementById('expenseAmount').value = expenseAmount;
+                document.getElementById('category').value =category;
+
+                deleteUser(userId)
+             }
+
+            // deleteUser
+
+            function deleteUser(userId){
+
+                axios.delete(`https://crudcrud.com/api/5755080eef5d439bb300b2640f920050/expense/${userId}`)
+                .then((response)=>{
+                    removeUserFromScreen(userId)
+                })
+                .catch((err)=>{
+                    console.log(err)
+                })
+                console.log(descriptionId)
+                localStorage.removeItem(descriptionId);
+                removeUserFromScreen(descriptionId);
+
+            }
+
+            function removeUserFromScreen(userId){
+                const parentNode = document.getElementById('listOfUsers');
+                const childNodeToBeDeleted = document.getElementById(userId);
+                if(childNodeToBeDeleted) {
+                    parentNode.removeChild(childNodeToBeDeleted)
+                }
+            }
+        </script>
+  </body>
+</html>
